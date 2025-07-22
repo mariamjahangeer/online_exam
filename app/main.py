@@ -1,7 +1,12 @@
 from fastapi import FastAPI
+from app.database import db
+from app.routers import user
 
 app = FastAPI()
 
+app.include_router(user.router)
+
 @app.get("/")
 def root():
-    return {"message": "Welcome to the Online Exam API!"}
+    return {"message": "Online Exam API is working!"}
+
