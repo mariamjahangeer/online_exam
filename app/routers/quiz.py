@@ -30,3 +30,23 @@ def create_question(question: QuestionCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_q)
     return new_q
+from app.schemas.submit import SubmitQuiz
+
+@router.post("/submit")
+def submit_quiz(payload: SubmitQuiz, db: Session = Depends(get_db)):
+    correct = 0
+    total = 0
+
+    for ans in payload.answers:
+        question = db.query(Question).filter(Question.id == ans.question_id, Question.quiz_id == payload.quiz_id).first()
+        if question:
+            total += 1
+            if question.correct_answer.lower() == ans.selected_option.lower():
+                correct += 1
+
+    return {
+        "quiz_id": payload.quiz_id,
+        "total_questions": total,
+        "correct_answers": correct,
+        "score_percent": (correct / total * 100) if total else 0
+    }
