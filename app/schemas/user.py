@@ -9,3 +9,6 @@ class ShowUser(BaseModel):
     email: EmailStr
     class Config:
         from_attributes = True
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str

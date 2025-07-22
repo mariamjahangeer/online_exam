@@ -21,3 +21,15 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+from fastapi import HTTPException
+from app.auth.hashing import verify
+from app.auth.jwt_handler import create_access_token
+from app.schemas.user import UserLogin
+
+@router.post("/login")
+def login(request: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == request.email).first()
+    if not user or not verify(request.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Invalid Credentials")
+    token = create_access_token(data={"user_id": user.id})
+    return {"access_token": token, "token_type": "bearer"}
